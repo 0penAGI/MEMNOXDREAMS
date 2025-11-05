@@ -1,595 +1,815 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#000000">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Undertale: Сны Архитектора</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
-```
-    body {
-        font-family: 'Courier New', monospace;
-        background: #000;
-        color: #fff;
-        min-height: 100vh;
-        overflow-x: hidden;
-        overflow-y: auto;
-        position: relative;
-        touch-action: pan-y;
-        -webkit-overflow-scrolling: touch;
-    }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            overflow-y: auto; /* Разрешаем скролл для длинных снов на мобильных */
+            position: relative;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="2" fill="white"/><text x="15" y="15" font-size="8" fill="white">♥</text></svg>') 10 10, auto;
+        }
 
-    .dream-noise {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0.04;
-        pointer-events: none;
-        z-index: 1;
-        background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
-        will-change: transform;
-    }
+        /* Мобильный: убираем кастомный курсор, он бесполезен на таче */
+        @media (hover: none) and (pointer: coarse) {
+            body {
+                cursor: auto;
+            }
+        }
 
-    .undertale-veil {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.02) 0%, transparent 70%);
-        pointer-events: none;
-        z-index: 1;
-    }
+        .dream-noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.06;
+            pointer-events: none;
+            z-index: 1;
+            background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+            animation: noiseMove 0.2s infinite;
+            /* Оптимизация: снижаем частоту на мобильных для производительности */
+            will-change: transform;
+        }
 
-    .container {
-        position: relative;
-        z-index: 2;
-        max-width: 100%;
-        margin: 0 auto;
-        padding: 20px 15px 100px;
-        text-align: center;
-    }
+        @media (max-width: 600px) {
+            .dream-noise {
+                animation-duration: 0.4s; /* Замедляем для экономии CPU */
+            }
+        }
 
-    .heart-eye {
-        width: 50px;
-        height: 50px;
-        margin: 10px auto 20px;
-        position: relative;
-        animation: heart-beat 2s ease-in-out infinite;
-    }
+        @keyframes noiseMove {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-5%, -5%); }
+            20% { transform: translate(-10%, 5%); }
+            30% { transform: translate(5%, -10%); }
+            40% { transform: translate(-5%, 15%); }
+            50% { transform: translate(-10%, 5%); }
+            60% { transform: translate(15%, 0); }
+            70% { transform: translate(0, 10%); }
+            80% { transform: translate(-15%, 0); }
+            90% { transform: translate(10%, 5%); }
+        }
 
-    .heart-eye .eye-outer {
-        width: 32px;
-        height: 16px;
-        border: 2px solid #fff;
-        border-radius: 50%;
-        position: absolute;
-        top: 8px;
-        left: 9px;
-        overflow: hidden;
-    }
+        .undertale-veil {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.02) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.02) 0%, transparent 50%);
+            pointer-events: none;
+            animation: determination-flicker 10s ease-in-out infinite;
+            z-index: 1;
+        }
 
-    .heart-eye .eye-inner {
-        width: 10px;
-        height: 10px;
-        background: radial-gradient(circle, #fff, #666);
-        border-radius: 50%;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        animation: eyeMove 4s ease-in-out infinite;
-    }
+        @keyframes determination-flicker {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.3; transform: scale(1.01); }
+        }
 
-    @keyframes eyeMove {
-        0%, 100% { left: 50%; }
-        25% { left: 35%; }
-        50% { left: 65%; }
-        75% { left: 45%; }
-    }
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            text-align: center;
+        }
 
-    .heart {
-        width: 0;
-        height: 0;
-        border-left: 25px solid transparent;
-        border-right: 25px solid transparent;
-        border-bottom: 35px solid #fff;
-        position: absolute;
-        top: 8px;
-        left: 12px;
-        transform: rotate(-45deg);
-    }
+        /* Мобильная responsivity */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 15px; /* Сжимаем для маленьких экранов */
+                max-width: 100%;
+            }
+        }
 
-    .heart::before,
-    .heart::after {
-        content: '';
-        width: 0;
-        height: 0;
-        position: absolute;
-    }
+        .heart-eye {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 40px;
+            position: relative;
+            animation: heart-beat 2s ease-in-out infinite;
+        }
 
-    .heart::before {
-        border-left: 17px solid transparent;
-        border-right: 17px solid transparent;
-        border-top: 17px solid #fff;
-        top: -17px;
-        left: -17px;
-    }
+        @media (max-width: 600px) {
+            .heart-eye {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 20px;
+            }
 
-    .heart::after {
-        border-left: 17px solid transparent;
-        border-right: 17px solid transparent;
-        border-top: 17px solid #fff;
-        top: -17px;
-        right: -17px;
-    }
+            .heart-eye .eye-outer {
+                width: 28px;
+                height: 14px;
+                top: 6px;
+                left: 6px;
+                border-width: 1px; /* Тоньше на мобильных */
+            }
 
-    @keyframes heart-beat {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.15); }
-    }
+            .heart-eye .eye-inner {
+                width: 10px;
+                height: 10px;
+            }
 
-    h1 {
-        font-size: clamp(1.3rem, 6vw, 2.5rem);
-        font-weight: bold;
-        letter-spacing: 2px;
-        margin-bottom: 15px;
-        text-transform: uppercase;
-        line-height: 1.2;
-        word-break: break-word;
-    }
+            .heart {
+                border-bottom-width: 28px;
+                border-left-width: 21px;
+                border-right-width: 21px;
+                top: 7px;
+                left: 10px;
+            }
 
-    .countdown {
-        font-size: clamp(1.2rem, 5vw, 1.8rem);
-        margin: 15px 0;
-        color: #fff;
-        text-shadow: 0 0 10px rgba(255,255,255,0.6);
-        font-weight: bold;
-    }
+            .heart::before,
+            .heart::after {
+                border-top-width: 14px;
+                border-left-width: 14px;
+                border-right-width: 14px;
+                top: -14px;
+                left: -14px; /* Для ::before */
+            }
 
-    .dialogue-box {
-        background: rgba(0,0,0,0.9);
-        border: 2px solid #fff;
-        padding: 15px;
-        margin: 20px 0;
-        position: relative;
-        min-height: 100px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-size: clamp(0.85rem, 3.5vw, 1rem);
-        line-height: 1.4;
-    }
+            .heart::after {
+                right: -14px;
+            }
+        }
 
-    .dream-input {
-        width: 100%;
-        min-height: 70px;
-        max-height: 150px;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid #fff;
-        color: #fff;
-        padding: 10px;
-        font-family: 'Courier New', monospace;
-        font-size: clamp(0.85rem, 3.5vw, 1rem);
-        resize: vertical;
-        margin-bottom: 10px;
-        touch-action: manipulation;
-    }
+        .heart-eye .eye-outer {
+            width: 40px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            overflow: hidden;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+        }
 
-    .dream-input::placeholder {
-        color: rgba(255,255,255,0.5);
-    }
+        .heart-eye .eye-inner {
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle, #fff, #666);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: eyeMove 4s ease-in-out infinite;
+        }
 
-    .dream-input:focus {
-        outline: none;
-        box-shadow: 0 0 8px rgba(255,255,255,0.4);
-    }
+        @keyframes eyeMove {
+            0%, 100% { left: 50%; top: 50%; }
+            25% { left: 35%; top: 45%; }
+            50% { left: 65%; top: 55%; }
+            75% { left: 45%; top: 48%; }
+        }
 
-    .choice-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin: 20px 0;
-        padding: 0 5px;
-    }
+        .heart {
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 40px solid #fff;
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            transform: rotate(-45deg);
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+        }
 
-    .choice {
-        padding: 15px 10px;
-        border: 2px solid #fff;
-        cursor: pointer;
-        transition: all 0.2s;
-        user-select: none;
-        font-size: clamp(0.8rem, 3.5vw, 0.95rem);
-        text-align: center;
-        min-height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0,0,0,0.5);
-        touch-action: manipulation;
-    }
+        .heart::before,
+        .heart::after {
+            content: '';
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
 
-    .choice:active {
-        background: #fff;
-        color: #000;
-        transform: scale(0.95);
-    }
+        .heart::before {
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 20px solid #fff;
+            top: -20px;
+            left: -20px;
+        }
 
-    @media (hover: hover) {
-        .choice:hover {
+        .heart::after {
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 20px solid #fff;
+            top: -20px;
+            right: -20px;
+        }
+
+        @keyframes heart-beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            animation: sans-glitch 4s linear infinite;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+                letter-spacing: 2px;
+                margin-bottom: 15px;
+            }
+        }
+
+        @keyframes sans-glitch {
+            0%, 95% { transform: translateX(0); }
+            96% { transform: translateX(-2px); }
+            97% { transform: translateX(2px); }
+            98% { transform: translateX(-1px); }
+            99% { transform: translateX(1px); }
+            100% { transform: translateX(0); }
+        }
+
+        .countdown {
+            font-size: 2rem;
+            margin: 20px 0;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(255,255,255,0.8);
+            font-weight: bold;
+            animation: glitch 5s infinite;
+        }
+
+        @media (max-width: 600px) {
+            .countdown {
+                font-size: 1.5rem;
+                margin: 15px 0;
+            }
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translateX(0); }
+            92% { transform: translateX(-2px); text-shadow: 2px 0 #ff0055, -2px 0 #00ffff; }
+            94% { transform: translateX(2px); text-shadow: -2px 0 #ff0055, 2px 0 #00ffff; }
+            96% { transform: translateX(-2px); }
+        }
+
+        .dialogue-box {
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #fff;
+            padding: 20px;
+            margin: 40px 0;
+            position: relative;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            animation: box-fade 3s ease-in-out infinite alternate;
+        }
+
+        @media (max-width: 600px) {
+            .dialogue-box {
+                padding: 15px;
+                margin: 20px 0;
+                min-height: 100px;
+                font-size: 1rem;
+            }
+        }
+
+        @keyframes box-fade {
+            0% { border-color: #fff; opacity: 0.9; }
+            100% { border-color: rgba(255,255,255,0.5); opacity: 1; }
+        }
+
+        .dialogue-box::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid #fff;
+        }
+
+        .dream-input {
+            width: 100%;
+            min-height: 80px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .dream-input {
+                min-height: 60px;
+                font-size: 0.9rem;
+                padding: 8px;
+            }
+        }
+
+        .dream-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .dream-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(255,255,255,0.4);
+        }
+
+        .bones-floor {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background-image: 
+                linear-gradient(transparent 80%, #fff 100%),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 10px,
+                    #fff 10px,
+                    #fff 12px
+                );
+            background-size: 100% 100%, 20px 100px;
+            animation: bone-march 5s linear infinite;
+            z-index: 0;
+        }
+
+        @media (max-width: 600px) {
+            .bones-floor {
+                height: 60px; /* Сжимаем, чтобы не перекрывать ввод */
+                background-size: 100% 100%, 15px 60px;
+            }
+        }
+
+        @keyframes bone-march {
+            0% { background-position: 0 0, 0 0; }
+            100% { background-position: 0 0, -20px 0; }
+        }
+
+        .choice {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            border: 1px solid #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+            touch-action: manipulation; /* Для тача в Telegram */
+        }
+
+        @media (max-width: 600px) {
+            .choice {
+                display: block;
+                margin: 5px auto;
+                width: 80%;
+                max-width: 200px;
+            }
+        }
+
+        .choice:hover,
+        .choice:active { /* Добавляем active для тача */
             background: #fff;
             color: #000;
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
         }
-    }
 
-    .result-area {
-        margin-top: 15px;
-        min-height: 100px;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid #fff;
-        padding: 12px;
-        text-align: left;
-        font-size: clamp(0.75rem, 3vw, 0.9rem);
-        line-height: 1.4;
-        opacity: 0;
-        transform: translateY(20px);
-        transition: all 0.6s ease;
-        word-break: break-word;
-    }
-
-    .result-area.active {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .execution-step {
-        margin: 6px 0;
-        padding: 4px;
-        border-left: 2px solid #fff;
-        position: relative;
-        font-size: clamp(0.7rem, 2.8vw, 0.85rem);
-    }
-
-    .execution-step::before {
-        content: '▸';
-        color: #ff0055;
-        margin-right: 4px;
-        font-weight: bold;
-    }
-
-    .system-status {
-        text-align: center;
-        margin-top: 10px;
-        font-size: clamp(0.65rem, 2.5vw, 0.75rem);
-        color: rgba(255,255,255,0.6);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .system-status.processing {
-        color: #ff0055;
-        animation: statusPulse 0.5s ease-in-out infinite;
-    }
-
-    @keyframes statusPulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-
-    .quantum-viz {
-        display: flex;
-        justify-content: space-around;
-        margin: 20px auto;
-        max-width: 200px;
-        height: 35px;
-        position: relative;
-    }
-
-    .quantum-indicator {
-        width: 6px;
-        height: 6px;
-        background: #fff;
-        border-radius: 50%;
-        box-shadow: 0 0 4px rgba(255,255,255,0.8);
-        position: relative;
-        animation: quantumFloat 2s ease-in-out infinite;
-    }
-
-    .quantum-indicator:nth-child(1) { animation-delay: 0s; }
-    .quantum-indicator:nth-child(2) { animation-delay: 0.2s; }
-    .quantum-indicator:nth-child(3) { animation-delay: 0.4s; }
-    .quantum-indicator:nth-child(4) { animation-delay: 0.6s; }
-    .quantum-indicator:nth-child(5) { animation-delay: 0.8s; }
-
-    @keyframes quantumFloat {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-15px); }
-    }
-
-    .quantum-indicator.entangled-up {
-        animation: quantumEntangledUp 1.5s ease-in-out infinite;
-    }
-
-    .quantum-indicator.entangled-down {
-        animation: quantumEntangledDown 1.5s ease-in-out infinite;
-    }
-
-    @keyframes quantumEntangledUp {
-        0%, 100% { transform: translateY(0); background: #fff; }
-        50% { transform: translateY(-25px); background: #ff0055; }
-    }
-
-    @keyframes quantumEntangledDown {
-        0%, 100% { transform: translateY(0); background: #fff; }
-        50% { transform: translateY(25px); background: #00ffff; }
-    }
-
-    @media (max-width: 360px) {
-        .container {
-            padding: 15px 10px 80px;
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
         }
-        
-        .choice-container {
-            gap: 8px;
-        }
-        
-        .choice {
-            padding: 12px 8px;
-            min-height: 45px;
-        }
-    }
 
-    /* iOS safe area */
-    @supports (padding-bottom: env(safe-area-inset-bottom)) {
-        .container {
-            padding-bottom: calc(100px + env(safe-area-inset-bottom));
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s linear infinite;
         }
-    }
-</style>
-```
 
+        .star:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
+        .star:nth-child(2) { top: 20%; left: 80%; animation-delay: 1s; }
+        .star:nth-child(3) { top: 60%; left: 10%; animation-delay: 2s; }
+        .star:nth-child(4) { top: 80%; left: 70%; animation-delay: 0.5s; }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Оптимизация: пауза анимаций на мобильных, если не в фокусе */
+        @media (prefers-reduced-motion: reduce) {
+            .star { animation: none; }
+            /* Аналогично для других */
+        }
+
+        .quantum-viz {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            height: 40px;
+            position: relative;
+        }
+
+        @media (max-width: 600px) {
+            .quantum-viz {
+                height: 30px;
+                margin: 15px 0;
+            }
+
+            .quantum-indicator {
+                width: 6px;
+                height: 6px;
+            }
+        }
+
+        .quantum-indicator {
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(255,255,255,0.8);
+            position: relative;
+            animation: quantumFloat 2s ease-in-out infinite;
+        }
+
+        .quantum-indicator:nth-child(1) { animation-delay: 0s; }
+        .quantum-indicator:nth-child(2) { animation-delay: 0.2s; }
+        .quantum-indicator:nth-child(3) { animation-delay: 0.4s; }
+        .quantum-indicator:nth-child(4) { animation-delay: 0.6s; }
+        .quantum-indicator:nth-child(5) { animation-delay: 0.8s; }
+
+        @keyframes quantumFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .quantum-indicator.entangled-up {
+            animation: quantumEntangledUp 1.5s ease-in-out infinite;
+        }
+
+        .quantum-indicator.entangled-down {
+            animation: quantumEntangledDown 1.5s ease-in-out infinite;
+        }
+
+        @keyframes quantumEntangledUp {
+            0%, 100% { transform: translateY(0); background: #fff; }
+            50% { transform: translateY(-30px); background: #ff0055; }
+        }
+
+        @keyframes quantumEntangledDown {
+            0%, 100% { transform: translateY(0); background: #fff; }
+            50% { transform: translateY(30px); background: #00ffff; }
+        }
+
+        .result-area {
+            margin-top: 20px;
+            min-height: 150px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #fff;
+            padding: 15px;
+            text-align: left;
+            font-size: 1rem;
+            line-height: 1.4;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+        }
+
+        @media (max-width: 600px) {
+            .result-area {
+                min-height: 120px;
+                padding: 10px;
+                font-size: 0.9rem;
+                margin-top: 15px;
+            }
+        }
+
+        .result-area.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .execution-step {
+            margin: 8px 0;
+            padding: 5px;
+            border-left: 2px solid #fff;
+            position: relative;
+        }
+
+        @media (max-width: 600px) {
+            .execution-step {
+                margin: 6px 0;
+                padding: 4px;
+                font-size: 0.9rem;
+            }
+        }
+
+        .execution-step::before {
+            content: '▸';
+            color: #ff0055;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+
+        .system-status {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: color 0.3s;
+        }
+
+        @media (max-width: 600px) {
+            .system-status {
+                font-size: 0.7rem;
+                margin-top: 8px;
+            }
+        }
+
+        .system-status.processing {
+            color: #ff0055;
+            animation: statusPulse 0.5s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
 </head>
 <body>
+    <div class="stars">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+    </div>
+
     <div class="dream-noise"></div>
     <div class="undertale-veil"></div>
+    <div class="bones-floor"></div>
 
-```
-<div class="container">
-    <div class="heart-eye">
-        <div class="eye-outer">
-            <div class="eye-inner"></div>
-        </div>
-        <div class="heart"></div>
-    </div>
-
-    <h1>undertale:<br>сны архитектора</h1>
-
-    <div class="countdown" id="countdown">00:00:00</div>
-
-    <div class="dialogue-box" id="dialogue">
-        <textarea class="dream-input" id="dreamInput" placeholder="* опиши сон... determination ждёт"></textarea>
-        <div class="result-area" id="output">
-            <div id="outputText">
-                * система падает в underground...<br>
-                * quantum entanglement: active.<br>
-                * execution module: online.
+    <div class="container">
+        <div class="heart-eye">
+            <div class="eye-outer">
+                <div class="eye-inner"></div>
             </div>
-            <div id="executionPlan"></div>
+            <div class="heart"></div>
         </div>
-        <div class="system-status" id="status">* ready for resonance</div>
+
+        <h1>undertale: сны архитектора</h1>
+
+        <div class="countdown" id="countdown">00:00:00</div>
+
+        <div class="dialogue-box" id="dialogue">
+            <textarea class="dream-input" id="dreamInput" placeholder="* опиши сон... determination ждёт. реальность подождёт, но воплотится."></textarea>
+            <div class="result-area" id="output">
+                <div id="outputText">
+                    * система падает в underground...<br>
+                    * ожидание входа: fallen dream.<br>
+                    * quantum entanglement: active.<br>
+                    * nonlinear time: confirmed.<br>
+                    * execution module: online.
+                </div>
+                <div id="executionPlan"></div>
+            </div>
+            <div class="system-status" id="status">* ready for resonance & mercy</div>
+        </div>
+
+        <div style="margin: 20px;">
+            <div class="choice" onclick="fight()">* fight</div>
+            <div class="choice" onclick="act()">* act (generate)</div>
+            <div class="choice" onclick="item()">* item (quantum)</div>
+            <div class="choice" onclick="mercy()">* mercy (execute)</div>
+        </div>
+
+        <div class="quantum-viz" id="quantumViz">
+            <div class="quantum-indicator"></div>
+            <div class="quantum-indicator"></div>
+            <div class="quantum-indicator"></div>
+            <div class="quantum-indicator"></div>
+            <div class="quantum-indicator"></div>
+        </div>
     </div>
 
-    <div class="choice-container">
-        <div class="choice" onclick="fight()">* fight</div>
-        <div class="choice" onclick="act()">* act</div>
-        <div class="choice" onclick="item()">* item</div>
-        <div class="choice" onclick="mercy()">* mercy</div>
-    </div>
+    <script>
+        const structureArchitectures = [
+            "* castle of crystallized time",
+            "* tower of frozen probabilities",
+            "* temple of uncertainty",
+            "* monument to quantum foam",
+            "* pyramid of folded dimensions"
+        ];
 
-    <div class="quantum-viz" id="quantumViz">
-        <div class="quantum-indicator"></div>
-        <div class="quantum-indicator"></div>
-        <div class="quantum-indicator"></div>
-        <div class="quantum-indicator"></div>
-        <div class="quantum-indicator"></div>
-    </div>
-</div>
+        const flowArchitectures = [
+            "* architecture without walls — only perception borders",
+            "* space flowing through realities",
+            "* house-stream, shifting with each glance",
+            "* city-river of time",
+            "* structure of eternal becoming"
+        ];
 
-<script>
-    const structureArchitectures = [
-        "* castle of crystallized time",
-        "* tower of frozen probabilities",
-        "* temple of uncertainty",
-        "* monument to quantum foam",
-        "* pyramid of folded dimensions"
-    ];
+        const lightArchitectures = [
+            "* building existing only in the moment of observation",
+            "* house of refracted consciousness light",
+            "* city visible only to the eye",
+            "* architecture of perception",
+            "* space between gazes"
+        ];
 
-    const flowArchitectures = [
-        "* architecture without walls — only perception borders",
-        "* space flowing through realities",
-        "* house-stream, shifting with each glance",
-        "* city-river of time",
-        "* structure of eternal becoming"
-    ];
+        const chaosArchitectures = [
+            "* house of clouds, floating between realities",
+            "* city-labyrinth, each turn a new dimension",
+            "* structure of chaos and order at once",
+            "* building on the edge of dream and wake",
+            "* architecture of impossibility"
+        ];
 
-    const lightArchitectures = [
-        "* building existing only in the moment of observation",
-        "* house of refracted consciousness light",
-        "* city visible only to the eye",
-        "* architecture of perception",
-        "* space between gazes"
-    ];
+        const executionSteps = [
+            "* step 1: visualize the foundation — sketch on paper/screen, 5 min daily",
+            "* step 2: gather resources — find allies online, start small prototype",
+            "* step 3: test probability — experiment: change one element, observe shift",
+            "* step 4: launch nonlinear flow — share vision, let it evolve in dialogue",
+            "* step 5: materialize — build/code/live, ignore linear time"
+        ];
 
-    const executionSteps = [
-        "* step 1: visualize foundation — sketch daily, 5 min",
-        "* step 2: gather resources — find allies, prototype",
-        "* step 3: test probability — experiment, observe",
-        "* step 4: launch flow — share vision, evolve",
-        "* step 5: materialize — build, ignore linear time"
-    ];
+        let countdownTime = Math.floor(Math.random() * 10000) + 3600;
 
-    let countdownTime = Math.floor(Math.random() * 10000) + 3600;
-
-    function updateCountdown() {
-        countdownTime--;
-        if (countdownTime < 0) countdownTime = Math.floor(Math.random() * 10000) + 3600;
-        const hours = Math.floor(countdownTime / 3600);
-        const minutes = Math.floor((countdownTime % 3600) / 60);
-        const seconds = countdownTime % 60;
-        document.getElementById('countdown').textContent = 
-            `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }
-
-    setInterval(updateCountdown, 1000);
-
-    function triggerEntanglement() {
-        const indicators = document.querySelectorAll('.quantum-indicator');
-        const idx1 = Math.floor(Math.random() * indicators.length);
-        let idx2 = Math.floor(Math.random() * indicators.length);
-        while (idx2 === idx1) idx2 = Math.floor(Math.random() * indicators.length);
-        indicators[idx1].classList.add('entangled-up');
-        indicators[idx2].classList.add('entangled-down');
-        setTimeout(() => {
-            indicators[idx1].classList.remove('entangled-up');
-            indicators[idx2].classList.remove('entangled-down');
-        }, 3000);
-    }
-
-    setInterval(() => {
-        if (Math.random() > 0.7) triggerEntanglement();
-    }, 5000);
-
-    function selectResonantArchitecture(dream) {
-        const dreamLower = dream.toLowerCase();
-        if (dreamLower.includes('свет') || dreamLower.includes('глаз') || dreamLower.includes('видеть') || dreamLower.includes('light') || dreamLower.includes('eye')) {
-            return lightArchitectures[Math.floor(Math.random() * lightArchitectures.length)];
-        }
-        if (dream.length % 2 === 0) {
-            return structureArchitectures[Math.floor(Math.random() * structureArchitectures.length)];
-        } else {
-            return flowArchitectures[Math.floor(Math.random() * flowArchitectures.length)];
-        }
-    }
-
-    function generateExecutionPlan() {
-        const steps = executionSteps.slice(0, 3 + Math.floor(Math.random() * 3));
-        return steps.map(step => `<div class="execution-step">${step}</div>`).join('');
-    }
-
-    function processDream() {
-        const dream = document.getElementById('dreamInput').value;
-        const output = document.getElementById('output');
-        const outputText = document.getElementById('outputText');
-        const executionPlan = document.getElementById('executionPlan');
-        const status = document.getElementById('status');
-        
-        if (!dream.trim()) {
-            outputText.innerHTML = "* error: void can't be spared.<br>* input required, fallen one.";
-            executionPlan.innerHTML = '';
-            output.classList.add('active');
-            return;
+        function updateCountdown() {
+            countdownTime--;
+            if (countdownTime < 0) countdownTime = Math.floor(Math.random() * 10000) + 3600;
+            const hours = Math.floor(countdownTime / 3600);
+            const minutes = Math.floor((countdownTime % 3600) / 60);
+            const seconds = countdownTime % 60;
+            document.getElementById('countdown').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
-        triggerEntanglement();
-        output.classList.add('active');
-        status.classList.add('processing');
-        status.textContent = "* processing quantum state...";
-        outputText.innerHTML = "* ████████░░░░ 80%<br>* analyzing timeline...";
+        setInterval(updateCountdown, 1000);
 
-        setTimeout(() => {
-            const resonantArch = selectResonantArchitecture(dream);
-            const entropy = (Math.random() * 100).toFixed(2);
-            const coherence = (Math.random() * 100).toFixed(2);
-            const dreamHash = dream.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-            const resonanceFreq = (dreamHash % 1000) + 100;
-            
-            outputText.innerHTML = `
-                <strong>* ARCHITECTURAL RESOLUTION:</strong><br><br>
-                ${resonantArch}<br><br>
-                <small>
-                * entropy: ${entropy}%<br>
-                * coherence: ${coherence}%<br>
-                * timeline shift: ${(Math.random() * 10 - 5).toFixed(3)}μs<br>
-                * resonance: ${resonanceFreq} Hz<br>
-                * hash: 0x${dreamHash.toString(16).toUpperCase()}
-                </small>
-            `;
-            
-            executionPlan.innerHTML = `<strong>* EXECUTION PATH:</strong><br>${generateExecutionPlan()}`;
-            
-            status.classList.remove('processing');
-            status.textContent = "* resonance spared | dream materializes";
-        }, 2000);
-    }
+        function triggerEntanglement() {
+            const indicators = document.querySelectorAll('.quantum-indicator');
+            const idx1 = Math.floor(Math.random() * indicators.length);
+            let idx2 = Math.floor(Math.random() * indicators.length);
+            while (idx2 === idx1) idx2 = Math.floor(Math.random() * indicators.length);
+            indicators[idx1].classList.add('entangled-up');
+            indicators[idx2].classList.add('entangled-down');
+            setTimeout(() => {
+                indicators[idx1].classList.remove('entangled-up');
+                indicators[idx2].classList.remove('entangled-down');
+            }, 3000);
+        }
 
-    function fight() {
-        const outputText = document.getElementById('outputText');
-        const output = document.getElementById('output');
-        outputText.innerHTML = '* strike — echo in void.<br>* no enemy here.<br>* just your shadow, architect.';
-        output.classList.add('active');
-        triggerEntanglement();
-    }
+        setInterval(() => {
+            if (Math.random() > 0.7) triggerEntanglement();
+        }, 5000);
 
-    function act() {
-        processDream();
-    }
+        function selectResonantArchitecture(dream) {
+            const dreamLower = dream.toLowerCase();
+            if (dreamLower.includes('свет') || dreamLower.includes('глаз') || dreamLower.includes('видеть') || dreamLower.includes('наблюдать') || dreamLower.includes('light') || dreamLower.includes('eye')) {
+                return lightArchitectures[Math.floor(Math.random() * lightArchitectures.length)];
+            }
+            if (dream.length % 2 === 0) {
+                return structureArchitectures[Math.floor(Math.random() * structureArchitectures.length)];
+            } else {
+                return flowArchitectures[Math.floor(Math.random() * flowArchitectures.length)];
+            }
+        }
 
-    function item() {
-        const outputText = document.getElementById('outputText');
-        const output = document.getElementById('output');
-        outputText.innerHTML = '* item: the eye-heart.<br>* it pulses in your soul.<br>* nonlinear, alive.<br>* quantum viz activates.';
-        output.classList.add('active');
-        triggerEntanglement();
-    }
+        function generateExecutionPlan() {
+            const steps = executionSteps.slice(0, 3 + Math.floor(Math.random() * 3));
+            return steps.map(step => `<div class="execution-step">${step}</div>`).join('');
+        }
 
-    function mercy() {
-        const dream = document.getElementById('dreamInput').value;
-        const executionPlan = document.getElementById('executionPlan');
-        const status = document.getElementById('status');
-        const output = document.getElementById('output');
-        
-        if (dream.trim()) {
-            executionPlan.innerHTML = `<strong>* MERCY PATH UNLOCKED:</strong><br>${generateExecutionPlan()}`;
-            status.textContent = "* mercy granted | steps to surface";
-            output.classList.add('active');
-        } else {
+        function glitch() {
+            document.querySelector('h1').style.animationDuration = '0.1s';
+            setTimeout(() => {
+                document.querySelector('h1').style.animationDuration = '4s';
+            }, 500);
+        }
+
+        function processDream() {
+            const dream = document.getElementById('dreamInput').value;
+            const output = document.getElementById('output');
             const outputText = document.getElementById('outputText');
-            outputText.innerHTML = '* mercy: release.<br>* sans grins in corner.<br>* no dream to spare yet.<br>* underground shifts.';
+            const executionPlan = document.getElementById('executionPlan');
+            const status = document.getElementById('status');
+            
+            if (!dream.trim()) {
+                outputText.innerHTML = "* error: void can't be spared.<br>* input required, fallen one.";
+                executionPlan.innerHTML = '';
+                return;
+            }
+
+            triggerEntanglement();
             output.classList.add('active');
-        }
-        triggerEntanglement();
-    }
+            status.classList.add('processing');
+            status.textContent = "* processing quantum state... mercy in motion...";
+            outputText.innerHTML = "* ████████░░░░ 80%<br>* analyzing timeline anomalies...";
 
-    let entanglementTimeout;
-    document.getElementById('dreamInput').addEventListener('input', function(e) {
-        if (e.target.value.length % 10 === 0 && e.target.value.length > 0) {
-            clearTimeout(entanglementTimeout);
-            entanglementTimeout = setTimeout(() => triggerEntanglement(), 100);
+            setTimeout(() => {
+                const resonantArch = selectResonantArchitecture(dream);
+                const entropy = (Math.random() * 100).toFixed(2);
+                const coherence = (Math.random() * 100).toFixed(2);
+                const dreamHash = dream.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                const resonanceFreq = (dreamHash % 1000) + 100;
+                
+                outputText.innerHTML = `
+                    <strong>* ARCHITECTURAL RESOLUTION:</strong><br><br>
+                    ${resonantArch}<br><br>
+                    <small>
+                    * system entropy: ${entropy}%<br>
+                    * quantum coherence: ${coherence}%<br>
+                    * timeline shift: ${(Math.random() * 10 - 5).toFixed(3)}μs<br>
+                    * resonance freq: ${resonanceFreq} Hz<br>
+                    * dream sig hash: 0x${dreamHash.toString(16).toUpperCase()}
+                    </small>
+                `;
+                
+                executionPlan.innerHTML = `<strong>* EXECUTION PATH:</strong><br>${generateExecutionPlan()}`;
+                
+                status.classList.remove('processing');
+                status.textContent = "* resonance spared | dream materializes";
+            }, 2000);
         }
-    });
 
-    // Prevent zoom on double tap for iOS
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function(event) {
-        const now = Date.now();
-        if (now - lastTouchEnd <= 300) {
-            event.preventDefault();
+        function fight() {
+            document.getElementById('dialogue').innerHTML = '* strike — echo in the void. * but no enemy here. * just your shadow, architect.';
+            glitch();
+            triggerEntanglement();
         }
-        lastTouchEnd = now;
-    }, false);
-</script>
-```
 
+        function act() {
+            processDream();
+        }
+
+        function item() {
+            document.getElementById('dialogue').innerHTML = '* item: the eye-heart. * it pulses in your soul. * nonlinear, alive. * quantum viz activates.';
+            document.getElementById('quantumViz').style.opacity = '1';
+            triggerEntanglement();
+        }
+
+        function mercy() {
+            const dream = document.getElementById('dreamInput').value;
+            if (dream.trim()) {
+                document.getElementById('executionPlan').innerHTML = `<strong>* MERCY PATH UNLOCKED:</strong><br>${generateExecutionPlan()}`;
+                document.getElementById('status').textContent = "* mercy granted | steps to surface";
+            } else {
+                document.getElementById('dialogue').innerHTML = '* mercy: release. * sans grins in the corner. * * but no dream to spare yet. * * you feel the underground shift.';
+            }
+            glitch();
+        }
+
+        document.getElementById('dreamInput').addEventListener('input', function(e) {
+            if (e.target.value.length % 10 === 0 && e.target.value.length > 0) {
+                triggerEntanglement();
+            }
+        });
+
+        // Для Telegram Web App: базовая интеграция (опционально, если нужно)
+        // if (window.Telegram && window.Telegram.WebApp) {
+        //     Telegram.WebApp.ready();
+        //     Telegram.WebApp.expand(); // Разворачиваем на полный экран
+        // }
+    </script>
 </body>
 </html>
