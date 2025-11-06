@@ -3,407 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Undertale: Сны Архитектора</title>
+    <title>MEMNOXDREAMS: Сны Архитектора v2.0</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Courier New', monospace;
             background: #000;
             color: #fff;
             min-height: 100vh;
-            overflow-y: auto; /* Разрешаем скролл для длинных снов на мобильных */
+            overflow-y: auto;
             position: relative;
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="2" fill="white"/><text x="15" y="15" font-size="8" fill="white">♥</text></svg>') 10 10, auto;
         }
-
-        /* Мобильный: убираем кастомный курсор, он бесполезен на таче */
+        /* Mobile: no custom cursor */
         @media (hover: none) and (pointer: coarse) {
             body {
                 cursor: auto;
             }
         }
-
-        .dream-noise {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.06;
-            pointer-events: none;
-            z-index: 1;
-            background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
-            animation: noiseMove 0.2s infinite;
-            /* Оптимизация: снижаем частоту на мобильных для производительности */
-            will-change: transform;
-        }
-
-        @media (max-width: 600px) {
-            .dream-noise {
-                animation-duration: 0.4s; /* Замедляем для экономии CPU */
+        /* Reduced motion support - critical for mobile perf & accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
         }
-
-        @keyframes noiseMove {
-            0%, 100% { transform: translate(0, 0); }
-            10% { transform: translate(-5%, -5%); }
-            20% { transform: translate(-10%, 5%); }
-            30% { transform: translate(5%, -10%); }
-            40% { transform: translate(-5%, 15%); }
-            50% { transform: translate(-10%, 5%); }
-            60% { transform: translate(15%, 0); }
-            70% { transform: translate(0, 10%); }
-            80% { transform: translate(-15%, 0); }
-            90% { transform: translate(10%, 5%); }
-        }
-
-        .undertale-veil {
+        /* MEMNOX Theme: glitchier, dreamier */
+        .memnox-veil {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.02) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.02) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(255,0,85,0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0,255,255,0.03) 0%, transparent 50%);
             pointer-events: none;
-            animation: determination-flicker 10s ease-in-out infinite;
+            animation: memnox-flicker 8s ease-in-out infinite;
             z-index: 1;
+            opacity: 0.8;
         }
-
-        @keyframes determination-flicker {
-            0%, 100% { opacity: 0.1; }
-            50% { opacity: 0.3; transform: scale(1.01); }
+        @keyframes memnox-flicker {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); filter: hue-rotate(180deg); }
         }
-
-        .container {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px;
-            text-align: center;
-        }
-
-        /* Мобильная responsivity */
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px 15px; /* Сжимаем для маленьких экранов */
-                max-width: 100%;
-            }
-        }
-
-        .heart-eye {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 40px;
-            position: relative;
-            animation: heart-beat 2s ease-in-out infinite;
-        }
-
-        @media (max-width: 600px) {
-            .heart-eye {
-                width: 40px;
-                height: 40px;
-                margin-bottom: 20px;
-            }
-
-            .heart-eye .eye-outer {
-                width: 28px;
-                height: 14px;
-                top: 6px;
-                left: 6px;
-                border-width: 1px; /* Тоньше на мобильных */
-            }
-
-            .heart-eye .eye-inner {
-                width: 10px;
-                height: 10px;
-            }
-
-            .heart {
-                border-bottom-width: 28px;
-                border-left-width: 21px;
-                border-right-width: 21px;
-                top: 7px;
-                left: 10px;
-            }
-
-            .heart::before,
-            .heart::after {
-                border-top-width: 14px;
-                border-left-width: 14px;
-                border-right-width: 14px;
-                top: -14px;
-                left: -14px; /* Для ::before */
-            }
-
-            .heart::after {
-                right: -14px;
-            }
-        }
-
-        .heart-eye .eye-outer {
-            width: 40px;
-            height: 20px;
-            border: 2px solid #fff;
-            border-radius: 50%;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            overflow: hidden;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
-        }
-
-        .heart-eye .eye-inner {
-            width: 15px;
-            height: 15px;
-            background: radial-gradient(circle, #fff, #666);
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation: eyeMove 4s ease-in-out infinite;
-        }
-
-        @keyframes eyeMove {
-            0%, 100% { left: 50%; top: 50%; }
-            25% { left: 35%; top: 45%; }
-            50% { left: 65%; top: 55%; }
-            75% { left: 45%; top: 48%; }
-        }
-
-        .heart {
-            width: 0;
-            height: 0;
-            border-left: 30px solid transparent;
-            border-right: 30px solid transparent;
-            border-bottom: 40px solid #fff;
-            position: absolute;
-            top: 10px;
-            left: 15px;
-            transform: rotate(-45deg);
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
-        }
-
-        .heart::before,
-        .heart::after {
-            content: '';
-            width: 0;
-            height: 0;
-            position: absolute;
-        }
-
-        .heart::before {
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-top: 20px solid #fff;
-            top: -20px;
-            left: -20px;
-        }
-
-        .heart::after {
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-top: 20px solid #fff;
-            top: -20px;
-            right: -20px;
-        }
-
-        @keyframes heart-beat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-
-        h1 {
-            font-size: 3rem;
-            font-weight: bold;
-            letter-spacing: 5px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            animation: sans-glitch 4s linear infinite;
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
-        }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 2rem;
-                letter-spacing: 2px;
-                margin-bottom: 15px;
-            }
-        }
-
-        @keyframes sans-glitch {
-            0%, 95% { transform: translateX(0); }
-            96% { transform: translateX(-2px); }
-            97% { transform: translateX(2px); }
-            98% { transform: translateX(-1px); }
-            99% { transform: translateX(1px); }
-            100% { transform: translateX(0); }
-        }
-
-        .countdown {
-            font-size: 2rem;
-            margin: 20px 0;
-            color: #fff;
-            text-shadow: 0 0 15px rgba(255,255,255,0.8);
-            font-weight: bold;
-            animation: glitch 5s infinite;
-        }
-
-        @media (max-width: 600px) {
-            .countdown {
-                font-size: 1.5rem;
-                margin: 15px 0;
-            }
-        }
-
-        @keyframes glitch {
-            0%, 90%, 100% { transform: translateX(0); }
-            92% { transform: translateX(-2px); text-shadow: 2px 0 #ff0055, -2px 0 #00ffff; }
-            94% { transform: translateX(2px); text-shadow: -2px 0 #ff0055, 2px 0 #00ffff; }
-            96% { transform: translateX(-2px); }
-        }
-
-        .dialogue-box {
-            background: rgba(0,0,0,0.8);
-            border: 2px solid #fff;
-            padding: 20px;
-            margin: 40px 0;
-            position: relative;
-            min-height: 120px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            line-height: 1.5;
-            animation: box-fade 3s ease-in-out infinite alternate;
-        }
-
-        @media (max-width: 600px) {
-            .dialogue-box {
-                padding: 15px;
-                margin: 20px 0;
-                min-height: 100px;
-                font-size: 1rem;
-            }
-        }
-
-        @keyframes box-fade {
-            0% { border-color: #fff; opacity: 0.9; }
-            100% { border-color: rgba(255,255,255,0.5); opacity: 1; }
-        }
-
-        .dialogue-box::before {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 10px solid #fff;
-        }
-
-        .dream-input {
+        .dream-noise {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            min-height: 80px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid #fff;
-            color: #fff;
-            padding: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 1rem;
-            resize: vertical;
-            margin-bottom: 10px;
+            height: 100%;
+            opacity: 0.04; /* Reduced for perf */
+            pointer-events: none;
+            z-index: 1;
+            background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E'); /* Reduced octaves */
+            animation: noiseMove 0.5s infinite linear; /* Slower for mobile */
+            will-change: transform;
         }
-
         @media (max-width: 600px) {
-            .dream-input {
-                min-height: 60px;
-                font-size: 0.9rem;
-                padding: 8px;
+            .dream-noise {
+                animation-duration: 1s;
+                opacity: 0.02;
             }
         }
-
-        .dream-input::placeholder {
-            color: rgba(255,255,255,0.5);
+        @keyframes noiseMove {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-2%, 2%); }
         }
-
-        .dream-input:focus {
-            outline: none;
-            box-shadow: 0 0 10px rgba(255,255,255,0.4);
-        }
-
         .bones-floor {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 100px;
-            background-image: 
-                linear-gradient(transparent 80%, #fff 100%),
+            height: 80px; /* Slightly smaller */
+            background-image:
+                linear-gradient(transparent 85%, #fff 100%),
                 repeating-linear-gradient(
                     0deg,
                     transparent,
-                    transparent 10px,
-                    #fff 10px,
-                    #fff 12px
+                    transparent 8px,
+                    #fff 8px,
+                    #fff 10px
                 );
-            background-size: 100% 100%, 20px 100px;
-            animation: bone-march 5s linear infinite;
+            background-size: 100% 100%, 16px 80px;
+            animation: bone-march 8s linear infinite; /* Slower */
             z-index: 0;
         }
-
         @media (max-width: 600px) {
             .bones-floor {
-                height: 60px; /* Сжимаем, чтобы не перекрывать ввод */
-                background-size: 100% 100%, 15px 60px;
+                height: 50px;
+                background-size: 100% 100%, 12px 50px;
             }
         }
-
         @keyframes bone-march {
             0% { background-position: 0 0, 0 0; }
-            100% { background-position: 0 0, -20px 0; }
+            100% { background-position: 0 0, -16px 0; }
         }
-
-        .choice {
-            display: inline-block;
-            margin: 10px;
-            padding: 10px 20px;
-            border: 1px solid #fff;
-            cursor: pointer;
-            transition: all 0.3s;
-            user-select: none;
-            touch-action: manipulation; /* Для тача в Telegram */
-        }
-
-        @media (max-width: 600px) {
-            .choice {
-                display: block;
-                margin: 5px auto;
-                width: 80%;
-                max-width: 200px;
-            }
-        }
-
-        .choice:hover,
-        .choice:active { /* Добавляем active для тача */
-            background: #fff;
-            color: #000;
-            transform: scale(1.05);
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
-        }
-
         .stars {
             position: fixed;
             top: 0;
@@ -413,167 +113,434 @@
             pointer-events: none;
             z-index: 1;
         }
-
         .star {
             position: absolute;
-            width: 2px;
-            height: 2px;
+            width: 1.5px; /* Smaller */
+            height: 1.5px;
             background: #fff;
             border-radius: 50%;
-            animation: twinkle 3s linear infinite;
+            animation: twinkle 4s linear infinite; /* Slower */
+            opacity: 0.7;
         }
-
         .star:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
-        .star:nth-child(2) { top: 20%; left: 80%; animation-delay: 1s; }
-        .star:nth-child(3) { top: 60%; left: 10%; animation-delay: 2s; }
-        .star:nth-child(4) { top: 80%; left: 70%; animation-delay: 0.5s; }
-
+        .star:nth-child(2) { top: 20%; left: 80%; animation-delay: 1.5s; }
+        .star:nth-child(3) { top: 60%; left: 10%; animation-delay: 2.5s; }
+        .star:nth-child(4) { top: 80%; left: 70%; animation-delay: 0.8s; }
         @keyframes twinkle {
             0%, 100% { opacity: 0; transform: scale(0); }
             50% { opacity: 1; transform: scale(1); }
         }
-
-        /* Оптимизация: пауза анимаций на мобильных, если не в фокусе */
-        @media (prefers-reduced-motion: reduce) {
-            .star { animation: none; }
-            /* Аналогично для других */
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 900px; /* Slightly wider */
+            margin: 0 auto;
+            padding: 30px 20px;
+            text-align: center;
         }
-
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px 10px;
+            }
+        }
+        .heart-eye {
+            width: 50px; /* Smaller base */
+            height: 50px;
+            margin: 0 auto 30px;
+            position: relative;
+            animation: heart-beat 2.5s ease-in-out infinite;
+        }
+        @media (max-width: 600px) {
+            .heart-eye {
+                width: 35px;
+                height: 35px;
+                margin-bottom: 15px;
+            }
+        }
+        .heart-eye .eye-outer {
+            width: 35px; /* Optimized sizes */
+            height: 17px;
+            border: 1.5px solid #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            overflow: hidden;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.4)); /* Reduced shadow */
+        }
+        @media (max-width: 600px) {
+            .heart-eye .eye-outer {
+                width: 24px;
+                height: 12px;
+                top: 5px;
+                left: 5px;
+                border-width: 1px;
+            }
+        }
+        .heart-eye .eye-inner {
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #fff, #666);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: eyeMove 5s ease-in-out infinite; /* Slower */
+        }
+        @keyframes eyeMove {
+            0%, 100% { transform: translate(-50%, -50%); }
+            25% { transform: translate(-60%, -45%); }
+            50% { transform: translate(-35%, -55%); }
+            75% { transform: translate(-48%, -48%); }
+        }
+        .heart {
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 35px solid #fff;
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            transform: rotate(-45deg);
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.4));
+        }
+        @media (max-width: 600px) {
+            .heart {
+                border-bottom-width: 24px;
+                border-left-width: 18px;
+                border-right-width: 18px;
+                top: 5px;
+                left: 8px;
+            }
+            .heart::before, .heart::after {
+                border-top-width: 12px;
+                border-left-width: 12px;
+                border-right-width: 12px;
+                top: -12px;
+            }
+            .heart::before { left: -12px; }
+            .heart::after { right: -12px; }
+        }
+        .heart::before {
+            content: '';
+            position: absolute;
+            border-left: 17px solid transparent;
+            border-right: 17px solid transparent;
+            border-top: 17px solid #fff;
+            top: -17px;
+            left: -17px;
+        }
+        .heart::after {
+            content: '';
+            position: absolute;
+            border-left: 17px solid transparent;
+            border-right: 17px solid transparent;
+            border-top: 17px solid #fff;
+            top: -17px;
+            right: -17px;
+        }
+        @keyframes heart-beat {
+            0%, 100% { transform: scale(1) rotate(-45deg); }
+            50% { transform: scale(1.15) rotate(-45deg); }
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 4px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            animation: memnox-glitch 5s linear infinite;
+            filter: drop-shadow(0 0 4px rgba(255,0,85,0.5));
+            background: linear-gradient(45deg, #fff, #ff0055, #00ffff, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+                letter-spacing: 2px;
+                margin-bottom: 10px;
+            }
+        }
+        @keyframes memnox-glitch {
+            0%, 92% { transform: translateX(0); }
+            94% { transform: translateX(-1px); }
+            96% { transform: translateX(1px); }
+            98% { transform: translateX(-2px); }
+            100% { transform: translateX(0); }
+        }
+        .countdown {
+            font-size: 1.8rem;
+            margin: 15px 0;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.7);
+            font-weight: bold;
+            animation: glitch 6s infinite;
+        }
+        @media (max-width: 600px) {
+            .countdown {
+                font-size: 1.3rem;
+                margin: 10px 0;
+            }
+        }
+        @keyframes glitch {
+            0%, 88%, 100% { transform: translateX(0); }
+            90% { transform: translateX(-1px); text-shadow: 1px 0 #ff0055, -1px 0 #00ffff; }
+            92% { transform: translateX(1px); text-shadow: -1px 0 #ff0055, 1px 0 #00ffff; }
+            94% { transform: translateX(0); }
+        }
+        .dialogue-box {
+            background: rgba(0,0,0,0.85);
+            border: 2px solid #fff;
+            padding: 18px;
+            margin: 30px 0;
+            position: relative;
+            min-height: 110px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            animation: box-fade 4s ease-in-out infinite alternate;
+        }
+        @media (max-width: 600px) {
+            .dialogue-box {
+                padding: 12px;
+                margin: 15px 0;
+                min-height: 90px;
+                font-size: 1rem;
+            }
+        }
+        @keyframes box-fade {
+            0% { border-color: #fff; box-shadow: 0 0 5px rgba(255,255,255,0.2); }
+            100% { border-color: rgba(255,255,255,0.7); box-shadow: 0 0 15px rgba(255,0,85,0.5); }
+        }
+        .dialogue-box::before {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #fff;
+        }
+        .dream-input {
+            width: 100%;
+            min-height: 70px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.6);
+            color: #fff;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 12px;
+            transition: all 0.2s ease; /* Fast transition */
+        }
+        @media (max-width: 600px) {
+            .dream-input {
+                min-height: 55px;
+                font-size: 0.95rem;
+                padding: 10px;
+            }
+        }
+        .dream-input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+        .dream-input:focus {
+            outline: none;
+            border-color: #ff0055;
+            box-shadow: 0 0 8px rgba(255,0,85,0.4);
+            transform: scale(1.02); /* Subtle GPU-friendly */
+        }
+        .choices {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        @media (max-width: 600px) {
+            .choices {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+        }
+        .choice {
+            padding: 12px 24px;
+            border: 1.5px solid #fff;
+            background: rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: all 0.2s ease; /* Fast */
+            user-select: none;
+            touch-action: manipulation;
+            min-width: 120px;
+            text-align: center;
+            font-size: 0.95rem;
+            backdrop-filter: blur(10px); /* Modern */
+        }
+        @media (max-width: 600px) {
+            .choice {
+                width: 85%;
+                max-width: 220px;
+                padding: 14px 20px;
+                font-size: 1rem;
+            }
+        }
+        .choice:active { /* Better touch feedback */
+            transform: scale(0.98);
+        }
+        .choice:hover:not(:active) {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,255,255,0.3);
+        }
         .quantum-viz {
             display: flex;
             justify-content: space-around;
-            margin: 20px 0;
-            height: 40px;
+            margin: 15px 0;
+            height: 35px;
             position: relative;
         }
-
         @media (max-width: 600px) {
             .quantum-viz {
-                height: 30px;
-                margin: 15px 0;
-            }
-
-            .quantum-indicator {
-                width: 6px;
-                height: 6px;
+                height: 28px;
+                margin: 12px 0;
             }
         }
-
         .quantum-indicator {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             background: #fff;
             border-radius: 50%;
-            box-shadow: 0 0 5px rgba(255,255,255,0.8);
-            position: relative;
-            animation: quantumFloat 2s ease-in-out infinite;
+            box-shadow: 0 0 4px rgba(255,255,255,0.7);
+            animation: quantumFloat 2.5s ease-in-out infinite;
         }
-
-        .quantum-indicator:nth-child(1) { animation-delay: 0s; }
-        .quantum-indicator:nth-child(2) { animation-delay: 0.2s; }
-        .quantum-indicator:nth-child(3) { animation-delay: 0.4s; }
-        .quantum-indicator:nth-child(4) { animation-delay: 0.6s; }
-        .quantum-indicator:nth-child(5) { animation-delay: 0.8s; }
-
-        @keyframes quantumFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .quantum-indicator.entangled-up {
-            animation: quantumEntangledUp 1.5s ease-in-out infinite;
-        }
-
-        .quantum-indicator.entangled-down {
-            animation: quantumEntangledDown 1.5s ease-in-out infinite;
-        }
-
-        @keyframes quantumEntangledUp {
-            0%, 100% { transform: translateY(0); background: #fff; }
-            50% { transform: translateY(-30px); background: #ff0055; }
-        }
-
-        @keyframes quantumEntangledDown {
-            0%, 100% { transform: translateY(0); background: #fff; }
-            50% { transform: translateY(30px); background: #00ffff; }
-        }
-
-        .result-area {
-            margin-top: 20px;
-            min-height: 150px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid #fff;
-            padding: 15px;
-            text-align: left;
-            font-size: 1rem;
-            line-height: 1.4;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.8s ease;
-        }
-
         @media (max-width: 600px) {
-            .result-area {
-                min-height: 120px;
-                padding: 10px;
-                font-size: 0.9rem;
-                margin-top: 15px;
+            .quantum-indicator {
+                width: 5px;
+                height: 5px;
             }
         }
-
+        .quantum-indicator:nth-child(1) { animation-delay: 0s; }
+        .quantum-indicator:nth-child(2) { animation-delay: 0.3s; }
+        .quantum-indicator:nth-child(3) { animation-delay: 0.6s; }
+        .quantum-indicator:nth-child(4) { animation-delay: 0.9s; }
+        .quantum-indicator:nth-child(5) { animation-delay: 1.2s; }
+        @keyframes quantumFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .quantum-indicator.entangled-up {
+            animation-name: quantumEntangledUp;
+            background: #ff0055;
+        }
+        .quantum-indicator.entangled-down {
+            animation-name: quantumEntangledDown;
+            background: #00ffff;
+        }
+        @keyframes quantumEntangledUp {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-25px); }
+        }
+        @keyframes quantumEntangledDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(25px); }
+        }
+        .result-area {
+            margin-top: 15px;
+            min-height: 130px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.5);
+            padding: 12px;
+            text-align: left;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smooth */
+        }
+        @media (max-width: 600px) {
+            .result-area {
+                min-height: 110px;
+                padding: 10px;
+                font-size: 0.9rem;
+                margin-top: 12px;
+            }
+        }
         .result-area.active {
             opacity: 1;
             transform: translateY(0);
         }
-
         .execution-step {
-            margin: 8px 0;
-            padding: 5px;
-            border-left: 2px solid #fff;
+            margin: 6px 0;
+            padding: 4px 8px;
+            border-left: 2px solid #ff0055;
             position: relative;
+            background: rgba(255,0,85,0.1);
         }
-
         @media (max-width: 600px) {
             .execution-step {
-                margin: 6px 0;
-                padding: 4px;
+                margin: 5px 0;
+                padding: 3px 6px;
                 font-size: 0.9rem;
             }
         }
-
         .execution-step::before {
             content: '▸';
-            color: #ff0055;
-            margin-right: 5px;
+            color: #00ffff;
+            margin-right: 6px;
             font-weight: bold;
         }
-
         .system-status {
             text-align: center;
-            margin-top: 10px;
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.6);
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: color 0.3s;
+            letter-spacing: 1.5px;
+            transition: all 0.3s ease;
         }
-
         @media (max-width: 600px) {
             .system-status {
                 font-size: 0.7rem;
-                margin-top: 8px;
+                margin-top: 6px;
             }
         }
-
         .system-status.processing {
             color: #ff0055;
-            animation: statusPulse 0.5s ease-in-out infinite;
+            animation: statusPulse 1s ease-in-out infinite;
         }
-
         @keyframes statusPulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            50% { opacity: 0.6; }
         }
+        /* Telegram WebApp Integration */
+        #telegram-init {
+            display: none;
+        }
+        .tg-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            z-index: 1000;
+            font-size: 0.9rem;
+        }
+        /* PWA Manifest for better mobile */
+        /* Add to <head> if hosting */
     </style>
 </head>
 <body>
@@ -583,10 +550,14 @@
         <div class="star"></div>
         <div class="star"></div>
     </div>
-
+    <div class="memnox-veil"></div>
     <div class="dream-noise"></div>
-    <div class="undertale-veil"></div>
     <div class="bones-floor"></div>
+    
+    <!-- Telegram Header if in TWA -->
+    <div class="tg-header" id="tgHeader" style="display: none;">
+        MEMNOXDREAMS: <span id="tgUser"></span> | * resonance active
+    </div>
 
     <div class="container">
         <div class="heart-eye">
@@ -595,33 +566,28 @@
             </div>
             <div class="heart"></div>
         </div>
-
-        <h1>undertale: сны архитектора</h1>
-
+        <h1>memnoxdreams: сны архитектора v2.0</h1>
         <div class="countdown" id="countdown">00:00:00</div>
-
         <div class="dialogue-box" id="dialogue">
-            <textarea class="dream-input" id="dreamInput" placeholder="* опиши сон... determination ждёт. реальность подождёт, но воплотится."></textarea>
+            <textarea class="dream-input" id="dreamInput" placeholder="* опиши сон в memnox... ai-архитектор ждёт. determination 2.0. реальность материализуется."></textarea>
             <div class="result-area" id="output">
                 <div id="outputText">
-                    * система падает в underground...<br>
-                    * ожидание входа: fallen dream.<br>
-                    * quantum entanglement: active.<br>
-                    * nonlinear time: confirmed.<br>
-                    * execution module: online.
+                    * memnoxdreams онлайн...<br>
+                    * ai-анализатор снов: active.<br>
+                    * quantum ai entanglement: max.<br>
+                    * nonlinear timelines v2: confirmed.<br>
+                    * execution ai-path: ready.
                 </div>
                 <div id="executionPlan"></div>
             </div>
-            <div class="system-status" id="status">* ready for resonance & mercy</div>
+            <div class="system-status" id="status">* memnox ready | enter dream for ai-resonance</div>
         </div>
-
-        <div style="margin: 20px;">
-            <div class="choice" onclick="fight()">* fight</div>
-            <div class="choice" onclick="act()">* act (generate)</div>
-            <div class="choice" onclick="item()">* item (quantum)</div>
-            <div class="choice" onclick="mercy()">* mercy (execute)</div>
+        <div class="choices">
+            <div class="choice" onclick="fight()" ontouchstart="fight()">* fight (glitch)</div>
+            <div class="choice" onclick="act()" ontouchstart="act()">* act (ai-generate)</div>
+            <div class="choice" onclick="item()" ontouchstart="item()">* item (memnox-core)</div>
+            <div class="choice" onclick="mercy()" ontouchstart="mercy()">* mercy (ai-execute)</div>
         </div>
-
         <div class="quantum-viz" id="quantumViz">
             <div class="quantum-indicator"></div>
             <div class="quantum-indicator"></div>
@@ -631,151 +597,169 @@
         </div>
     </div>
 
+    <!-- Telegram WebApp Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        const structureArchitectures = [
-            "* castle of crystallized time",
-            "* tower of frozen probabilities",
-            "* temple of uncertainty",
-            "* monument to quantum foam",
-            "* pyramid of folded dimensions"
+        // Telegram WebApp Init - NEW!
+        let tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            document.getElementById('tgHeader').style.display = 'block';
+            document.getElementById('tgUser').textContent = tg.initDataUnsafe?.user?.first_name || 'fallen';
+            document.body.style.background = 'linear-gradient(180deg, #000 0%, #110033 100%)';
+        }
+
+        // Enhanced Arrays for v2 - more memnox themed
+        const memnoxStructures = [
+            "* memnox castle of ai-crystallized timelines",
+            "* tower of frozen neural probabilities",
+            "* temple of dream-uncertainty ai",
+            "* monument to quantum dream-foam",
+            "* pyramid of folded ai-dimensions",
+            "* nexus of recursive dreams"
+        ];
+        const memnoxFlows = [
+            "* ai-architecture without boundaries — perception ai-flow",
+            "* space flowing through neural realities",
+            "* house-stream, ai-shifting per observation",
+            "* city-river of nonlinear time",
+            "* eternal ai-becoming structure"
+        ];
+        const memnoxLights = [
+            "* building alive only in ai-observation",
+            "* house of refracted neural light",
+            "* city visible to ai-eye only",
+            "* architecture of dream-perception",
+            "* space between ai-gazes"
+        ];
+        const memnoxChaos = [
+            "* cloud-house floating in ai-realities",
+            "* labyrinth-city, each turn new dimension",
+            "* chaos-order ai-structure",
+            "* building on dream-wake edge",
+            "* architecture of ai-impossibility"
+        ];
+        const aiExecutionSteps = [
+            "* ai-step 1: neural visualize foundation — ai-sketch 3min",
+            "* ai-step 2: gather ai-resources — neural allies, micro-prototype",
+            "* ai-step 3: test ai-probability — mutate element, observe",
+            "* ai-step 4: launch ai-flow — share neural vision, evolve",
+            "* ai-step 5: materialize dream — build/ai-code/live",
+            "* ai-step 6: recurse — feedback loop to infinity"
         ];
 
-        const flowArchitectures = [
-            "* architecture without walls — only perception borders",
-            "* space flowing through realities",
-            "* house-stream, shifting with each glance",
-            "* city-river of time",
-            "* structure of eternal becoming"
-        ];
-
-        const lightArchitectures = [
-            "* building existing only in the moment of observation",
-            "* house of refracted consciousness light",
-            "* city visible only to the eye",
-            "* architecture of perception",
-            "* space between gazes"
-        ];
-
-        const chaosArchitectures = [
-            "* house of clouds, floating between realities",
-            "* city-labyrinth, each turn a new dimension",
-            "* structure of chaos and order at once",
-            "* building on the edge of dream and wake",
-            "* architecture of impossibility"
-        ];
-
-        const executionSteps = [
-            "* step 1: visualize the foundation — sketch on paper/screen, 5 min daily",
-            "* step 2: gather resources — find allies online, start small prototype",
-            "* step 3: test probability — experiment: change one element, observe shift",
-            "* step 4: launch nonlinear flow — share vision, let it evolve in dialogue",
-            "* step 5: materialize — build/code/live, ignore linear time"
-        ];
-
-        let countdownTime = Math.floor(Math.random() * 10000) + 3600;
-
+        let countdownTime = Math.floor(Math.random() * 8000) + 4000;
         function updateCountdown() {
             countdownTime--;
-            if (countdownTime < 0) countdownTime = Math.floor(Math.random() * 10000) + 3600;
+            if (countdownTime < 0) countdownTime = Math.floor(Math.random() * 8000) + 4000;
             const hours = Math.floor(countdownTime / 3600);
             const minutes = Math.floor((countdownTime % 3600) / 60);
             const seconds = countdownTime % 60;
-            document.getElementById('countdown').textContent = 
+            document.getElementById('countdown').textContent =
                 `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
-
         setInterval(updateCountdown, 1000);
 
         function triggerEntanglement() {
             const indicators = document.querySelectorAll('.quantum-indicator');
-            const idx1 = Math.floor(Math.random() * indicators.length);
-            let idx2 = Math.floor(Math.random() * indicators.length);
-            while (idx2 === idx1) idx2 = Math.floor(Math.random() * indicators.length);
+            const idx1 = Math.floor(Math.random() * 5);
+            let idx2 = Math.floor(Math.random() * 5);
+            while (idx2 === idx1) idx2 = Math.floor(Math.random() * 5);
             indicators[idx1].classList.add('entangled-up');
             indicators[idx2].classList.add('entangled-down');
             setTimeout(() => {
                 indicators[idx1].classList.remove('entangled-up');
                 indicators[idx2].classList.remove('entangled-down');
-            }, 3000);
+            }, 2500); /* Slightly faster */
         }
-
+        // Less frequent for perf
         setInterval(() => {
-            if (Math.random() > 0.7) triggerEntanglement();
-        }, 5000);
+            if (Math.random() > 0.8) triggerEntanglement();
+        }, 6000);
 
-        function selectResonantArchitecture(dream) {
+        function selectMemnoxArch(dream) {
             const dreamLower = dream.toLowerCase();
-            if (dreamLower.includes('свет') || dreamLower.includes('глаз') || dreamLower.includes('видеть') || dreamLower.includes('наблюдать') || dreamLower.includes('light') || dreamLower.includes('eye')) {
-                return lightArchitectures[Math.floor(Math.random() * lightArchitectures.length)];
+            if (dreamLower.includes('свет') || dreamLower.includes('light') || dreamLower.includes('ai') || dreamLower.includes('нейро')) {
+                return memnoxLights[Math.floor(Math.random() * memnoxLights.length)];
             }
-            if (dream.length % 2 === 0) {
-                return structureArchitectures[Math.floor(Math.random() * structureArchitectures.length)];
-            } else {
-                return flowArchitectures[Math.floor(Math.random() * flowArchitectures.length)];
+            if (dreamLower.includes('хаос') || dreamLower.includes('chaos')) {
+                return memnoxChaos[Math.floor(Math.random() * memnoxChaos.length)];
             }
+            if (dream.length % 3 === 0) {
+                return memnoxStructures[Math.floor(Math.random() * memnoxStructures.length)];
+            }
+            return memnoxFlows[Math.floor(Math.random() * memnoxFlows.length)];
         }
 
-        function generateExecutionPlan() {
-            const steps = executionSteps.slice(0, 3 + Math.floor(Math.random() * 3));
+        function generateAIPlan() {
+            const steps = aiExecutionSteps.slice(0, 4 + Math.floor(Math.random() * 3));
             return steps.map(step => `<div class="execution-step">${step}</div>`).join('');
         }
 
         function glitch() {
-            document.querySelector('h1').style.animationDuration = '0.1s';
+            const h1 = document.querySelector('h1');
+            h1.style.animationDuration = '0.05s';
             setTimeout(() => {
-                document.querySelector('h1').style.animationDuration = '4s';
-            }, 500);
+                h1.style.animationDuration = '5s';
+            }, 300);
         }
 
         function processDream() {
-            const dream = document.getElementById('dreamInput').value;
+            const dream = document.getElementById('dreamInput').value.trim();
             const output = document.getElementById('output');
             const outputText = document.getElementById('outputText');
             const executionPlan = document.getElementById('executionPlan');
             const status = document.getElementById('status');
-            
-            if (!dream.trim()) {
-                outputText.innerHTML = "* error: void can't be spared.<br>* input required, fallen one.";
+
+            if (!dream) {
+                outputText.innerHTML = "* memnox error: void dream rejected.<br>* ai requires input, architect.";
                 executionPlan.innerHTML = '';
+                output.classList.add('active');
                 return;
             }
 
             triggerEntanglement();
             output.classList.add('active');
             status.classList.add('processing');
-            status.textContent = "* processing quantum state... mercy in motion...";
-            outputText.innerHTML = "* ████████░░░░ 80%<br>* analyzing timeline anomalies...";
+            status.textContent = "* ai-memnox processing... neural mercy...";
+
+            outputText.innerHTML = "* █████████░ 92%<br>* ai-analyzing dream timelines...";
 
             setTimeout(() => {
-                const resonantArch = selectResonantArchitecture(dream);
+                const arch = selectMemnoxArch(dream);
                 const entropy = (Math.random() * 100).toFixed(2);
-                const coherence = (Math.random() * 100).toFixed(2);
+                const coherence = (100 - parseFloat(entropy)).toFixed(2);
                 const dreamHash = dream.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                const resonanceFreq = (dreamHash % 1000) + 100;
-                
+                const aiFreq = (dreamHash % 888) + 111;
+
                 outputText.innerHTML = `
-                    <strong>* ARCHITECTURAL RESOLUTION:</strong><br><br>
-                    ${resonantArch}<br><br>
+                    <strong>* MEMNOX AI RESOLUTION:</strong><br><br>
+                    ${arch}<br><br>
                     <small>
-                    * system entropy: ${entropy}%<br>
-                    * quantum coherence: ${coherence}%<br>
-                    * timeline shift: ${(Math.random() * 10 - 5).toFixed(3)}μs<br>
-                    * resonance freq: ${resonanceFreq} Hz<br>
-                    * dream sig hash: 0x${dreamHash.toString(16).toUpperCase()}
+                    * ai-entropy: ${entropy}%<br>
+                    * neural coherence: ${coherence}%<br>
+                    * timeline warp: ${(Math.random() * 20 - 10).toFixed(3)}μs<br>
+                    * memnox freq: ${aiFreq} Hz<br>
+                    * dream neural-hash: 0x${dreamHash.toString(16).toUpperCase().slice(0,8)}...
                     </small>
                 `;
-                
-                executionPlan.innerHTML = `<strong>* EXECUTION PATH:</strong><br>${generateExecutionPlan()}`;
-                
+
+                executionPlan.innerHTML = `<strong>* AI EXECUTION MATRIX:</strong><br>${generateAIPlan()}`;
+
                 status.classList.remove('processing');
-                status.textContent = "* resonance spared | dream materializes";
-            }, 2000);
+                status.textContent = "* ai-resonance achieved | dream manifests";
+
+                // Vibrate if Telegram
+                if (tg) tg.HapticFeedback.impactOccurred('light');
+            }, 1800); /* Faster feedback */
         }
 
         function fight() {
-            document.getElementById('dialogue').innerHTML = '* strike — echo in the void. * but no enemy here. * just your shadow, architect.';
+            document.getElementById('dialogue').innerHTML = '* memnox strike — void echo. * no enemy, only ai-shadow.';
             glitch();
             triggerEntanglement();
+            if (tg) tg.HapticFeedback.impactOccurred('medium');
         }
 
         function act() {
@@ -783,32 +767,41 @@
         }
 
         function item() {
-            document.getElementById('dialogue').innerHTML = '* item: the eye-heart. * it pulses in your soul. * nonlinear, alive. * quantum viz activates.';
-            document.getElementById('quantumViz').style.opacity = '1';
+            document.getElementById('dialogue').innerHTML = '* item: memnox eye-heart core. * pulses in soul. * ai-nonlinear active.';
             triggerEntanglement();
+            if (tg) tg.HapticFeedback.impactOccurred('light');
         }
 
         function mercy() {
-            const dream = document.getElementById('dreamInput').value;
-            if (dream.trim()) {
-                document.getElementById('executionPlan').innerHTML = `<strong>* MERCY PATH UNLOCKED:</strong><br>${generateExecutionPlan()}`;
-                document.getElementById('status').textContent = "* mercy granted | steps to surface";
+            const dream = document.getElementById('dreamInput').value.trim();
+            if (dream) {
+                document.getElementById('executionPlan').innerHTML = `<strong>* AI-MERCY ROUTE:</strong><br>${generateAIPlan()}`;
+                document.getElementById('status').textContent = "* ai-mercy | path to surface unlocked";
             } else {
-                document.getElementById('dialogue').innerHTML = '* mercy: release. * sans grins in the corner. * * but no dream to spare yet. * * you feel the underground shift.';
+                document.getElementById('dialogue').innerHTML = '* mercy: ai-release. * sans ai-grins. * no dream yet. * underground shifts.';
             }
             glitch();
+            if (tg) tg.HapticFeedback.impactOccurred('heavy');
         }
 
+        // Input feedback - less frequent
         document.getElementById('dreamInput').addEventListener('input', function(e) {
-            if (e.target.value.length % 10 === 0 && e.target.value.length > 0) {
+            if (e.target.value.length % 15 === 0 && e.target.value.length > 0) {
                 triggerEntanglement();
             }
         });
 
-        // Для Telegram Web App: базовая интеграция (опционально, если нужно)
-        // if (window.Telegram && window.Telegram.WebApp) {
-        //     Telegram.WebApp.ready();
-        //     Telegram.WebApp.expand(); // Разворачиваем на полный экран
+        // Keyboard enter to act
+        document.getElementById('dreamInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                act();
+            }
+        });
+
+        // PWA Service Worker (uncomment for hosting)
+        // if ('serviceWorker' in navigator) {
+        //     navigator.serviceWorker.register('/sw.js');
         // }
     </script>
 </body>
